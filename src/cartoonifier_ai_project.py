@@ -68,8 +68,7 @@ def upload_from_camera():
             image_path_camera_feed = current_directory + "\\photoshoot.png"
             global image_path
             image_path = image_path_camera_feed
-            image_name = "photoshoot.png"
-            cv2.imwrite(image_name, frame)
+            cv2.imwrite(image_path_camera_feed, frame)
             break
         if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) <1:
             break
@@ -127,6 +126,11 @@ def cartoonify(image_path):
     for i, ax in enumerate(axes.flat):
         ax.imshow(images[i], cmap='gray')
 
+    if resize_image6 is None:
+        save_button.config(state=DISABLED)
+    else:
+        save_button.config(state=NORMAL)
+
     # Show all the image transformations
     plt.show()
 
@@ -153,7 +157,7 @@ upload_from_camera.configure(background="#374256", foreground="wheat", font=('ca
 upload_from_camera.pack(side=TOP, pady=30)
 
 # Making a Save button in the GUI main window
-save_button = Button(root, text="Save Cartoonified Image", command=lambda: save(resize_image6, image_path), padx=38, pady=10)
+save_button = Button(root, text="Save Cartoonified Image", state=DISABLED, command=lambda: save(resize_image6, image_path), padx=38, pady=10)
 save_button.configure(background='#374256', foreground='wheat', font=('calibri', 10, 'bold'))
 save_button.pack(side=TOP, pady=30)
 
