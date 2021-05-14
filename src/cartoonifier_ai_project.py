@@ -22,10 +22,10 @@ x = (screen_width/2) - (width/2)
 y = (screen_height/2) - (height/2)
 
 root.title('Cartoonify Your Image!')
-root.iconbitmap(os.path.dirname(os.path.realpath(__file__)) + '\\rainbow.ico')
+root.iconbitmap(os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\rainbow.ico')
 root.geometry('%dx%d+%d+%d' % (width, height, x, y))
 root.resizable(False, False)
-background_image = PhotoImage(file = os.path.dirname(os.path.realpath(__file__)) + '\\gradient_blue.gif')
+background_image = PhotoImage(file = os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\gradient_blue.gif')
 background_label = Label(root, image=background_image)
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
