@@ -94,28 +94,34 @@ def cartoonify(image_path):
     if original_image is None:
         print("The image cannot be found. Choose a proper image to cartoonify!")
         sys.exit()
-    resize_image1 = cv2.resize(original_image, (960, 540)) # Resize the image before starting the image processing
+    resize_image1 = resize_image_with_aspect_ratio(original_image, height=960)
+    # plt.imshow(resize_image1, cmap='gray')
 
     # Convert the image into grayscale and resize the image
     grayscale_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    resize_image2 = cv2.resize(grayscale_image, (960, 540))
+    resize_image2 = resize_image_with_aspect_ratio(grayscale_image, height=960)
+    # plt.imshow(resize_image2, cmap='gray')
 
     # Apply Median Blur technique to smoothen the image and resize the image
     smooth_grayscale_image = cv2.medianBlur(grayscale_image, 5)
-    resize_image3 = cv2.resize(smooth_grayscale_image, (960, 540))
+    resize_image3 = resize_image_with_aspect_ratio(smooth_grayscale_image, height=960)
+    # plt.imshow(resize_image3, cmap='gray')
 
     # Retrieve the edges for the cartoon effect by using Adaptive Threshold technique and resize the image
-    get_edge = cv2.adaptiveThreshold(smooth_grayscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
-    resize_image4 = cv2.resize(get_edge, (960, 540))
+    get_edge = cv2.adaptiveThreshold(smooth_grayscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 3)
+    resize_image4 = resize_image_with_aspect_ratio(get_edge, height=960)
+    # plt.imshow(resize_image4, cmap='gray')
 
     # Apply bilateral filter to remove noisy data and keep the edges sharp as required and resize the image 
     color_image = cv2.bilateralFilter(original_image, 9, 300, 300)
-    resize_image5 = cv2.resize(color_image, (960, 540))
+    resize_image5 = resize_image_with_aspect_ratio(color_image, height=960)
+    # plt.imshow(resize_image5, cmap='gray')
 
     # Mask the edged image with Bitwise AND technique to beautify the image
     cartoon_image = cv2.bitwise_and(color_image, color_image, mask=get_edge)
     global resize_image6 # must be declared to be reachable outside of the scope
-    resize_image6 = cv2.resize(cartoon_image, (960, 540))
+    resize_image6 = resize_image_with_aspect_ratio(cartoon_image, height=960)
+    # plt.imshow(resize_image6, cmap='gray')
 
     # Plotting all the image transformations to see the difference between each tranformation
     images = [resize_image1, resize_image2, resize_image3, resize_image4, resize_image5, resize_image6]
@@ -131,6 +137,34 @@ def cartoonify(image_path):
 
     # Show all the image transformations
     plt.show()
+
+# Resize the image with keeping the aspect ratio
+def resize_image_with_aspect_ratio(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
+
+    # if both the width and height are None, then return the original image
+    if width is None and height is None:
+        return image
+
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the dimensions
+        r = height / float (h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
 
 def save(resize_image6, image_path):
     # Save the image with imwrite function to the working directory
