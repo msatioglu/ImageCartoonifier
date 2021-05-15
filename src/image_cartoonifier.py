@@ -1,12 +1,12 @@
 # Importing the required modules
-import tkinter as tk  # graphical user interface toolkit
+import tkinter as tk  # Graphical User Interface toolkit to create user interactions
 from tkinter import *
-from tkinter import constants
-import easygui  # to open the filebox
-import cv2  # for image processing
-import matplotlib.pyplot as plt
-import os  # to read and save path
-import sys  #
+from tkinter import constants # Used for built-in tkinter constants
+import easygui  # Used for opening the filebox window
+import cv2  # OpenCV library for image transformations and image processing
+import matplotlib.pyplot as plt # Used for plotting and visualizing the difference between each transformation
+import os  # Used for reading/checking files and saving to directories
+import sys  # Used for system functionalities
 
 # Making the GUI main window
 root = tk.Tk()
@@ -21,17 +21,17 @@ screen_height = root.winfo_screenheight() # height of the screen
 x = (screen_width/2) - (width/2)
 y = (screen_height/2) - (height/2)
 
-root.title('Cartoonify Your Image!')
-root.iconbitmap(os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\rainbow.ico')
-root.geometry('%dx%d+%d+%d' % (width, height, x, y))
-root.resizable(False, False)
-background_image = PhotoImage(file = os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\gradient_blue.gif')
-background_label = Label(root, image=background_image)
-background_label.place(x=0, y=0, relwidth=1, relheight=1)
-
-""" fileopenbox opens the box to choose file and help us store file path as string """
+root.title('Cartoonify Your Image!') # title of the main window
+root.iconbitmap(os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\rainbow.ico') # icon of the main window
+root.geometry('%dx%d+%d+%d' % (width, height, x, y)) # calculate the main window and set the size of it
+root.resizable(False, False) # disable resize option of the main window
+background_image = PhotoImage(file = os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\gradient_blue.gif') # Tk only accepts .gif files as a background image
+background_label = Label(root, image=background_image) # set the background image for the main window
+background_label.place(x=0, y=0, relwidth=1, relheight=1) # arrange the position
 
 image_path = '' # global variable image_path for different types of upload mechanisms
+
+# fileopenbox opens the box to choose file and help us store file path as string
 
 def upload():
     
@@ -63,14 +63,14 @@ def upload_from_camera():
         k = cv2.waitKey(1)
         
         if k%256 == 32:
-            # SPACE pressed
+            # Keyboard interation - When pressing the SPACE, take the current camera feed and save it to the current directory 
             current_directory = os.path.dirname(os.path.realpath(__file__))
             image_path_camera_feed = current_directory + "\\photoshoot.png"
             global image_path
             image_path = image_path_camera_feed
             cv2.imwrite(image_path_camera_feed, frame)
             break
-        if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) <1:
+        if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) <1: # When user clicks the X button, quit the application
             break
     
     camera.release()
@@ -85,41 +85,39 @@ def upload_from_camera():
 # Store the image
 def cartoonify(image_path):
 
-    # read image
+    # Read the image with the given path
     original_image = cv2.imread(image_path)
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-    print(original_image)  # this will be stored in form of numbers
+    print(original_image)  # The image is an array of numbers and it will be stored as a number array
 
-    # to confirm it is image that was chosing
+    # Confirm the image selection and is it is not empty
     if original_image is None:
-        print("Can't find any image. Choose appropriate file")
+        print("The image cannot be found. Choose a proper image to cartoonify!")
         sys.exit()
-    resize_image1 = cv2.resize(original_image, (960, 540))
+    resize_image1 = cv2.resize(original_image, (960, 540)) # Resize the image before starting the image processing
 
-    # converting an image to grayscale
+    # Convert the image into grayscale and resize the image
     grayscale_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     resize_image2 = cv2.resize(grayscale_image, (960, 540))
 
-    # applying median blur to smoothen an image
+    # Apply Median Blur technique to smoothen the image and resize the image
     smooth_grayscale_image = cv2.medianBlur(grayscale_image, 5)
     resize_image3 = cv2.resize(smooth_grayscale_image, (960, 540))
 
-    # retrieving the edges for cartoon effect
-    # by using thresholding technique
+    # Retrieve the edges for the cartoon effect by using Adaptive Threshold technique and resize the image
     get_edge = cv2.adaptiveThreshold(smooth_grayscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
     resize_image4 = cv2.resize(get_edge, (960, 540))
 
-    # applying bilateral filter to remove noise
-    # and keep edge sharp as required
+    # Apply bilateral filter to remove noisy data and keep the edges sharp as required and resize the image 
     color_image = cv2.bilateralFilter(original_image, 9, 300, 300)
     resize_image5 = cv2.resize(color_image, (960, 540))
 
-    # masking edged image with our "BEAUTIFY" image
+    # Mask the edged image with Bitwise AND technique to beautify the image
     cartoon_image = cv2.bitwise_and(color_image, color_image, mask=get_edge)
     global resize_image6 # must be declared to be reachable outside of the scope
     resize_image6 = cv2.resize(cartoon_image, (960, 540))
 
-    # Plotting all the image transformations
+    # Plotting all the image transformations to see the difference between each tranformation
     images = [resize_image1, resize_image2, resize_image3, resize_image4, resize_image5, resize_image6]
     fig, axes = plt.subplots(3, 2, figsize=(8, 8), subplot_kw={'xticks': [], 'yticks': []},
                              gridspec_kw=dict(hspace=0.1, wspace=0.1))
@@ -135,7 +133,7 @@ def cartoonify(image_path):
     plt.show()
 
 def save(resize_image6, image_path):
-    # saving an image using imwrite function
+    # Save the image with imwrite function to the working directory
     new_name = "cartoonified_" + os.path.basename(image_path)
     original_filepath = os.path.dirname(image_path)
     print(original_filepath)
@@ -145,22 +143,24 @@ def save(resize_image6, image_path):
     tk.messagebox.showinfo(title="Save Info", message=I)
 
 def close():
-    root.destroy()
+    root.destroy() # When user presses the Close button, kill the application
 
-# Making the Cartoonify button in the GUI main window
+# Making the Cartoonify an Image button in the GUI main window
 upload = Button(root, text="Cartoonify an Image", command=upload, padx=50, pady=10)
 upload.configure(background="#374256", foreground="wheat", font=('calibri', 10, 'bold'))
 upload.pack(side=TOP, pady=30)
 
+# Making the Cartoonify Image from Camera button in the GUI main window
 upload_from_camera = Button(root, text="Cartoonify Image from Camera", command=upload_from_camera, padx=20, pady=10)
 upload_from_camera.configure(background="#374256", foreground="wheat", font=('calibri', 10, 'bold'))
 upload_from_camera.pack(side=TOP, pady=30)
 
-# Making a Save button in the GUI main window
+# Making the Save Cartoonified Image button in the GUI main window
 save_button = Button(root, text="Save Cartoonified Image", state=DISABLED, command=lambda: save(resize_image6, image_path), padx=38, pady=10)
 save_button.configure(background='#374256', foreground='wheat', font=('calibri', 10, 'bold'))
 save_button.pack(side=TOP, pady=30)
 
+# Making Close button in the GUI main window
 close_button = Button(root, text="Close", command=lambda: close(), padx=90, pady=10)
 close_button.configure(background='#374256', foreground='wheat', font=('calibri', 10, 'bold'))
 close_button.pack(side=TOP, pady=30)
