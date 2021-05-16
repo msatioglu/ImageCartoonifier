@@ -21,7 +21,7 @@ screen_height = root.winfo_screenheight() # height of the screen
 x = (screen_width/2) - (width/2)
 y = (screen_height/2) - (height/2)
 
-root.title('Cartoonify Your Image!') # title of the main window
+root.title('Image Cartoonifier') # title of the main window
 root.iconbitmap(os.path.dirname(os.path.realpath(__file__)) + '\\style\\images\\rainbow.ico') # icon of the main window
 root.geometry('%dx%d+%d+%d' % (width, height, x, y)) # calculate the main window and set the size of it
 root.resizable(False, False) # disable resize option of the main window
@@ -180,7 +180,7 @@ def close():
     root.destroy() # When user presses the Close button, kill the application
 
 # Making the Cartoonify an Image button in the GUI main window
-upload = Button(root, text="Cartoonify an Image", command=upload, padx=50, pady=10)
+upload = Button(root, text="Cartoonify Image (Normal Upload)", command=upload, padx=12, pady=10)
 upload.configure(background="#374256", foreground="wheat", font=('calibri', 10, 'bold'))
 upload.pack(side=TOP, pady=30)
 
